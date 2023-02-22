@@ -7,22 +7,28 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Mindscms\Entrust\Traits\EntrustUserWithPermissionsTrait;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable;
-
+    use HasApiTokens, HasFactory, Notifiable , EntrustUserWithPermissionsTrait;
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
+        'username',
+        'mobile',
+        'user_image',
+        'status',
         'email',
         'password',
     ];
 
+    protected $append = ['full_name'];
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -41,4 +47,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    
+    public function getFullNameAttribute(): string
+    {
+        return ucfirst($this->first_name) . ' ' . ucfirst($this->last_name) ;
+    }
 }
