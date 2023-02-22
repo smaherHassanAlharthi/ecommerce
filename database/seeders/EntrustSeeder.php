@@ -3,11 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 use App\Models\Role;
 use App\Models\User;
 use Faker\Factory;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class EntrustSeeder extends Seeder
 {
@@ -37,11 +37,10 @@ class EntrustSeeder extends Seeder
             'name' => 'customer',
             'display_name' => 'Customer',
             'description' => 'Customer',
-            'allowed_route' => null ,
+            'allowed_route' => null,
         ]);
 
         ////
-
 
         $admin = User::create([
             'first_name' => 'Admin',
@@ -73,7 +72,6 @@ class EntrustSeeder extends Seeder
         ]);
         $supervisor->attachRole($supervisorRole);
 
-
         $customer = User::create([
             'first_name' => 'Smaher',
             'last_name' => 'Alharthi',
@@ -90,14 +88,14 @@ class EntrustSeeder extends Seeder
         $supervisor->attachRole($customerRole);
 
         ///
-        for( $i =1 ; $i <=10 ; $i++){
+        for ($i = 1; $i <= 10; $i++) {
             $random_customer = User::create([
                 'first_name' => $faker->firstName,
-                'last_name' => $faker->lastName ,
-                'username' => $faker->userName ,
+                'last_name' => $faker->lastName,
+                'username' => $faker->userName,
                 'email' => $faker->unique()->safeemail,
                 'email_verified_at' => now(),
-                'mobile' => '96650'.$faker->numberBetween(1000000, 9000000) ,
+                'mobile' => '96650' . $faker->numberBetween(1000000, 9000000),
                 'password' => bcrypt('123123123'),
                 'user_image' => 'avatar.svg',
                 'status' => 1,
@@ -106,17 +104,17 @@ class EntrustSeeder extends Seeder
             $random_customer->attachRole($customerRole);
         }
         $manageMain = Permission::create([
-            'name' => 'main' ,
-            'display_name' => 'Main' ,
-            'route' => 'index' ,
-            'module' => 'index' ,
-            'as' => 'index' ,
-            'icon' => 'fas fa-fw fa-tachometer-alt' ,
-            'parent' => '0' ,
-            'parent_original' => '0' ,
-            'sidebar_link' => '1' ,
-            'appear' => '1' ,
-            'ordering' => '1' ,
+            'name' => 'main',
+            'display_name' => 'Main',
+            'route' => 'index',
+            'module' => 'index',
+            'as' => 'index',
+            'icon' => 'fas fa-fw fa-tachometer-alt',
+            'parent' => '0',
+            'parent_original' => '0',
+            'sidebar_link' => '1',
+            'appear' => '1',
+            'ordering' => '1',
         ]);
         $manageMain->parent_show = $manageMain->id;
         $manageMain->save();
@@ -132,7 +130,7 @@ class EntrustSeeder extends Seeder
             'parent' => '0', 'parent_original' => '0',
             'sidebar_link' => '1',
             'appear' => '1',
-            'ordering' => '5',]);
+            'ordering' => '5']);
         $manageProductCategories->parent_show = $manageProductCategories->id;
         $manageProductCategories->save();
 
@@ -177,16 +175,16 @@ class EntrustSeeder extends Seeder
 
         $updateProductCategories = Permission::create([
             'name' => 'update_product_categories',
-             'display_name' => 'Update Category',
-             'route' => 'product_categories',
-             'module' => 'product_categories',
-             'as' => 'product_categories.edit',
-             'icon' => null,
-             'parent' => $manageProductCategories->id,
-             'parent_original' => $manageProductCategories->id,
-             'parent_show' => $manageProductCategories->id,
-             'sidebar_link' => '1',
-             'appear' => '0']);
+            'display_name' => 'Update Category',
+            'route' => 'product_categories',
+            'module' => 'product_categories',
+            'as' => 'product_categories.edit',
+            'icon' => null,
+            'parent' => $manageProductCategories->id,
+            'parent_original' => $manageProductCategories->id,
+            'parent_show' => $manageProductCategories->id,
+            'sidebar_link' => '1',
+            'appear' => '0']);
 
         $deleteProductCategories = Permission::create([
             'name' => 'delete_product_categories',
@@ -200,6 +198,26 @@ class EntrustSeeder extends Seeder
             'parent_show' => $manageProductCategories->id,
             'sidebar_link' => '1',
             'appear' => '0']);
+
+        // PRODUCTS TAGS
+        $manageTags = Permission::create(['name' => 'manage_tags', 'display_name' => 'Tags', 'route' => 'tags', 'module' => 'tags', 'as' => 'tags.index', 'icon' => 'fas fa-tags', 'parent' => '0', 'parent_original' => '0', 'sidebar_link' => '1', 'appear' => '1', 'ordering' => '10']);
+        $manageTags->parent_show = $manageTags->id;
+        $manageTags->save();
+        $showTags = Permission::create(['name' => 'show_tags', 'display_name' => 'Tags', 'route' => 'tags', 'module' => 'tags', 'as' => 'tags.index', 'icon' => 'fas fa-tags', 'parent' => $manageTags->id, 'parent_original' => $manageTags->id, 'parent_show' => $manageTags->id, 'sidebar_link' => '1', 'appear' => '1']);
+        $createTags = Permission::create(['name' => 'create_tags', 'display_name' => 'Create Tag', 'route' => 'tags', 'module' => 'tags', 'as' => 'tags.create', 'icon' => null, 'parent' => $manageTags->id, 'parent_original' => $manageTags->id, 'parent_show' => $manageTags->id, 'sidebar_link' => '1', 'appear' => '0']);
+        $displayTags = Permission::create(['name' => 'display_tags', 'display_name' => 'Show Tag', 'route' => 'tags', 'module' => 'tags', 'as' => 'tags.show', 'icon' => null, 'parent' => $manageTags->id, 'parent_original' => $manageTags->id, 'parent_show' => $manageTags->id, 'sidebar_link' => '1', 'appear' => '0']);
+        $updateTags = Permission::create(['name' => 'update_tags', 'display_name' => 'Update Tag', 'route' => 'tags', 'module' => 'tags', 'as' => 'tags.edit', 'icon' => null, 'parent' => $manageTags->id, 'parent_original' => $manageTags->id, 'parent_show' => $manageTags->id, 'sidebar_link' => '1', 'appear' => '0']);
+        $deleteTags = Permission::create(['name' => 'delete_tags', 'display_name' => 'Delete Tag', 'route' => 'tags', 'module' => 'tags', 'as' => 'tags.destroy', 'icon' => null, 'parent' => $manageTags->id, 'parent_original' => $manageTags->id, 'parent_show' => $manageTags->id, 'sidebar_link' => '1', 'appear' => '0']);
+
+        // PRODUCTS
+        $manageProducts = Permission::create(['name' => 'manage_products', 'display_name' => 'Products', 'route' => 'products', 'module' => 'products', 'as' => 'products.index', 'icon' => 'fas fa-file-archive', 'parent' => '0', 'parent_original' => '0', 'sidebar_link' => '1', 'appear' => '1', 'ordering' => '15']);
+        $manageProducts->parent_show = $manageProducts->id;
+        $manageProducts->save();
+        $showProducts = Permission::create(['name' => 'show_products', 'display_name' => 'Products', 'route' => 'products', 'module' => 'products', 'as' => 'products.index', 'icon' => 'fas fa-file-archive', 'parent' => $manageProducts->id, 'parent_original' => $manageProducts->id, 'parent_show' => $manageProducts->id, 'sidebar_link' => '1', 'appear' => '1']);
+        $createProducts = Permission::create(['name' => 'create_products', 'display_name' => 'Create Product', 'route' => 'products', 'module' => 'products', 'as' => 'products.create', 'icon' => null, 'parent' => $manageProducts->id, 'parent_original' => $manageProducts->id, 'parent_show' => $manageProducts->id, 'sidebar_link' => '1', 'appear' => '0']);
+        $displayProducts = Permission::create(['name' => 'display_products', 'display_name' => 'Show Product', 'route' => 'products', 'module' => 'products', 'as' => 'products.show', 'icon' => null, 'parent' => $manageProducts->id, 'parent_original' => $manageProducts->id, 'parent_show' => $manageProducts->id, 'sidebar_link' => '1', 'appear' => '0']);
+        $updateProducts = Permission::create(['name' => 'update_products', 'display_name' => 'Update Product', 'route' => 'products', 'module' => 'products', 'as' => 'products.edit', 'icon' => null, 'parent' => $manageProducts->id, 'parent_original' => $manageProducts->id, 'parent_show' => $manageProducts->id, 'sidebar_link' => '1', 'appear' => '0']);
+        $deleteProducts = Permission::create(['name' => 'delete_products', 'display_name' => 'Delete Product', 'route' => 'products', 'module' => 'products', 'as' => 'products.destroy', 'icon' => null, 'parent' => $manageProducts->id, 'parent_original' => $manageProducts->id, 'parent_show' => $manageProducts->id, 'sidebar_link' => '1', 'appear' => '0']);
 
     }
 }
