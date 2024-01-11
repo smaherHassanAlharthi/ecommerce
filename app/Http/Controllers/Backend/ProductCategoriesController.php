@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\ProductCategory;
+use App\Http\Requests\Backend\ProductCategoryRequest;
+use Illuminate\Support\Str;
+use Intervention\Image\Facades\Image;
 
 class ProductCategoriesController extends Controller
 {
@@ -14,7 +18,18 @@ class ProductCategoriesController extends Controller
      */
     public function index()
     {
-        return view('backend.product_categories.index');
+        $categories = ProductCategory::withCount('products')
+            ->when(\request()->keyword != null, function ($query) {
+                // $query->where('name','like','%', . . '%');
+                $query->search(\request()->keyword);
+            })
+            ->when(\request()->status != null, function ($query) {
+                $query->whereStatus(\request()->status);
+            })
+            ->orderBy(\request()->sort_by ?? 'id', \request()->order_by ?? 'desc')
+            ->paginate(\request()->limit_by ?? 10);
+
+        return view('backend.product_categories.index', compact('categories'));
     }
 
     /**
@@ -24,7 +39,11 @@ class ProductCategoriesController extends Controller
      */
     public function create()
     {
-        return view('backend.product_categories.create');
+        if (!auth()->user()->ability('admin', 'create_product_categories')) {
+            return redirect('admin/index');
+        }
+        $main_categories = ProductCategory::whereNull('parent_id')->get(['id', 'name']);
+        return view('backend.product_categories.create', compact('main_categories'));
     }
 
     /**
@@ -33,9 +52,40 @@ class ProductCategoriesController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ProductCategoryRequest $request)
     {
-        //
+        if (!auth()->user()->ability('admin', 'create_product_categories')) {
+            return redirect('admin/index');
+        }
+        $input['name'] = $request->name;
+        $input['status'] = $request->status;
+        $input['parent_id'] = $request->parent_id;
+
+        if ($image = $request->file('cover')) {
+            $file_name = Str::slug($request->name).".".$image->getClientOriginalExtension();
+            $path = public_path('/assets/product_categories/' . $file_name);
+            Image::make($image->getRealPath())->resize(500, null, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save($path, 100);
+            $input['cover'] = $file_name;
+        }
+        // if ($image = $request->file('cover')) {
+        //     // create new manager instance with desired driver
+        //     $manager = new ImageManager(
+        //         new Driver()
+        //     );
+        //     $file_name = $request->name.".".$image->getClientOriginalExtension();
+        //     $path = public_path('/assets/product_categories/' . $file_name);
+        //     // read image from filesystem
+        //     $image = $manager->read($image);
+        //     $image->toJpeg()->save($path);
+        //     $input['cover'] = $file_name;
+        // }
+        ProductCategory::create($input);
+        return redirect()->route('admin.product_categories.index')->with([
+            'message' => 'Created successfully',
+            'alert-type' => 'success'
+        ]);
     }
 
     /**
@@ -57,6 +107,7 @@ class ProductCategoriesController extends Controller
      */
     public function edit($id)
     {
+        
         return view('backend.product_categories.edit');
     }
 
